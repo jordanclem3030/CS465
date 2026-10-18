@@ -1,4 +1,6 @@
 
+require('dotenv').config();
+
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -7,6 +9,9 @@ var logger = require('morgan');
 
 // Connect to MongoDB through app_api
 require('./app_api/models/db');
+
+// Configure Passport authentication
+var passport = require('./app_api/config/passport');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -40,12 +45,28 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Initialize Passport
+app.use(passport.initialize());
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/travel', travelRouter);
 
 // Connect REST API endpoints
 app.use('/api', apiRouter);
+
+ // Handle API authentication errors
+app.use('/api', function(err, req, res, next) {
+  if (err.name === 'UnauthorizedError') {
+    return res.status(401).json({
+      message: 'Unauthorized access. A valid login token is required.'
+    });
+  }
+
+  return res.status(err.status || 500).json({
+    message: 'An API error occurred.'
+  });
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
