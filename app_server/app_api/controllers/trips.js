@@ -16,7 +16,7 @@ const tripsList = async (req, res) => {
     }
 };
 
-// GET a single trip by code
+// GET one trip by code
 const tripsFindByCode = async (req, res) => {
     try {
         const trip = await Trip.findOne({
@@ -38,7 +38,78 @@ const tripsFindByCode = async (req, res) => {
     }
 };
 
+// POST a new trip
+const tripsAddTrip = async (req, res) => {
+    try {
+        const existingTrip = await Trip.findOne({
+            code: req.body.code
+        }).exec();
+
+        if (existingTrip) {
+            return res.status(409).json({
+                message: 'A trip with this code already exists'
+            });
+        }
+
+        const newTrip = await Trip.create({
+            code: req.body.code,
+            name: req.body.name,
+            length: req.body.length,
+            start: req.body.start,
+            resort: req.body.resort,
+            perPerson: req.body.perPerson,
+            image: req.body.image,
+            description: req.body.description
+        });
+
+        return res.status(201).json(newTrip);
+    } catch (err) {
+        return res.status(400).json({
+            message: 'Error adding trip',
+            error: err.message
+        });
+    }
+};
+
+// PUT update an existing trip
+const tripsUpdateTrip = async (req, res) => {
+    try {
+        const updatedTrip = await Trip.findOneAndUpdate(
+            { code: req.params.tripCode },
+            {
+                name: req.body.name,
+                length: req.body.length,
+                start: req.body.start,
+                resort: req.body.resort,
+                perPerson: req.body.perPerson,
+                image: req.body.image,
+                description: req.body.description
+            },
+            {
+                new: true,
+                runValidators: true
+            }
+        ).exec();
+
+        if (!updatedTrip) {
+            return res.status(404).json({
+                message: 'Trip not found'
+            });
+        }
+
+        return res.status(200).json(updatedTrip);
+    } catch (err) {
+        return res.status(400).json({
+            message: 'Error updating trip',
+            error: err.message
+        });
+    }
+};
+
+// Export all controller functions
 module.exports = {
     tripsList,
-    tripsFindByCode
+    tripsFindByCode,
+    tripsAddTrip,
+    tripsUpdateTrip
 };

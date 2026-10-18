@@ -4,10 +4,16 @@ const router = express.Router();
 
 const tripsController = require('../controllers/trips');
 
-// Get all trips
+// GET all trips
 router.get('/trips', tripsController.tripsList);
 
-// Get one trip by its code
+// GET one trip by code
 router.get('/trips/:tripCode', tripsController.tripsFindByCode);
+
+// POST a new trip
+router.post('/trips', tripsController.tripsAddTrip);
+
+// PUT update an existing trip
+router.put('/trips/:tripCode', tripsController.tripsUpdateTrip);
 
 module.exports = router;
