@@ -1,0 +1,33 @@
+
+<div class="container mt-4">
+  <h2>Travlr Getaways - Trip Listing</h2>
+  <p>Available trips:</p>
+
+  <div class="row">
+    <div class="col-md-4 mb-4" *ngFor="let trip of trips">
+
+      <app-trip-card [trip]="trip"></app-trip-card>
+
+      <button
+        type="button"
+        class="btn btn-primary mt-2"
+        (click)="editTrip(trip)">
+        Edit Trip
+      </button>
+
+    </div>
+  </div>
+
+  <div *ngIf="selectedTrip" class="mt-4">
+    <hr>
+
+    <app-edit-trip [trip]="selectedTrip"></app-edit-trip>
+
+    <button
+      type="button"
+      class="btn btn-secondary mt-3"
+      (click)="cancelEdit()">
+      Cancel Editing
+    </button>
+  </div>
+</div>
